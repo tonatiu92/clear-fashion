@@ -111,7 +111,25 @@ const render = (products, pagination) => {
  */
 selectShow.addEventListener('change', async (event) => {
   const products = await fetchProducts(currentPagination.currentPage, parseInt(event.target.value));
+  setCurrentProducts(products);
+  render(currentProducts, currentPagination);
+});
 
+document.addEventListener('DOMContentLoaded', async () => {
+  const products = await fetchProducts();
+
+  setCurrentProducts(products);
+  render(currentProducts, currentPagination);
+});
+
+
+/**
+ * Select the Page
+ * */
+ selectPage.addEventListener('change', async (event) => {
+   console.log("1: " + currentProducts.length)
+  const products = await fetchProducts( parseInt(event.target.value), currentProducts.length);
+  console.log("2: " + currentProducts.length)
   setCurrentProducts(products);
   render(currentProducts, currentPagination);
 });
