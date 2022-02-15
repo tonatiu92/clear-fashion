@@ -6,6 +6,8 @@ let currentProducts = [];
 let currentPagination = {};
 let currentBrand="All"
 let currentSort = "";
+let favoriteProduct = [];
+
 //Save the whole database
 let CompleteBase = [];
 let MyFavorite ={};
@@ -77,7 +79,7 @@ const renderProducts = products => {
         <span>${product.brand}</span>
         <a href="${product.link}">${product.name}</a>
         <span>${product.price}</span>
-        <input type="button" value="Fav">
+        <input name ="${product.name}_button" type="button" value="Fav" onclick="AddFavorite("test") ">
       </div>
     `;
     })
@@ -88,6 +90,11 @@ const renderProducts = products => {
   sectionProducts.innerHTML = '<h2>Products</h2>';
   sectionProducts.appendChild(fragment);
 };
+
+function AddFavorite(element) {
+  console.log(element)
+}
+
 
 /**
  * Render page selector
@@ -296,13 +303,9 @@ function pValues(p){
 /**
  * Feature 13: Save as favorite
  */
-
+//ok
 
 /**
  * Feature 14: Filter by favorite
  */
 
-sectionProducts.addEventListener('click', async(event) =>{
-  console.log(sectionProducts)
-
-});
