@@ -7,6 +7,8 @@ let currentPagination = {};
 let currentBrand="All"
 let currentSort = "";
 let favoriteProduct = [];
+//RAJOUTER: 
+
 
 //Save the whole database
 let CompleteBase = [];
@@ -17,6 +19,7 @@ let MyFavorite ={};
 const selectShow = document.querySelector('#show-select');
 const selectPage = document.querySelector('#page-select');
 const sectionProducts = document.querySelector('#products');
+const sectionFavorites = document.querySelector("#Favorites")
 const spanNbProducts = document.querySelector('#nbProducts');
 const selectBrands = document.querySelector("#brand-select");
 const selectRecProd = document.querySelector("#By-recently-released");
@@ -79,7 +82,7 @@ const renderProducts = products => {
         <span>${product.brand}</span>
         <a href="${product.link}">${product.name}</a>
         <span>${product.price}</span>
-        <input name ="${product.name}_button" type="button" value="Fav" onclick="AddFavorite("test") ">
+        <input name ="${product.name}" type="button" value="Fav" onclick="AddFavorite(this)">
       </div>
     `;
     })
@@ -91,10 +94,38 @@ const renderProducts = products => {
   sectionProducts.appendChild(fragment);
 };
 
-function AddFavorite(element) {
-  console.log(element)
+function AddFavorite(event) {
+  const addFav = currentProducts.find(product => product.name == event.name)
+  favoriteProduct.push(addFav)
+  renderFavorite()
 }
 
+const renderFavorite = ()=>{
+  const fragment = document.createDocumentFragment();
+  const div = document.createElement('div');
+  const template = favoriteProduct
+    .map(product => {   
+      return `
+      <div class="product" id=${product.uuid}>
+        <span>${product.brand}</span>
+        <a href="${product.link}">${product.name}</a>
+        <span>${product.price}</span>
+        <input name ="${product.name}" type="button" value="Del" onclick="DelFavorite(this)">
+      </div>
+    `;
+    })
+    .join('');
+
+  div.innerHTML = template;                   
+  fragment.appendChild(div);
+  sectionFavorites.innerHTML = '<h2>Favorites</h2>';
+  sectionFavorites.appendChild(fragment);
+}
+function DelFavorite(event) {
+  const del_index = favoriteProduct.indexOf(currentProducts.find(product => product.name == event.name))
+  favoriteProduct.splice(del_index,1)
+  renderFavorite()
+}
 
 /**
  * Render page selector
@@ -146,6 +177,7 @@ const render = (products, pagination) => {
   let products_4 = selectedSort(products_3);
   renderProducts(products_4);
   renderPagination(pagination);
+  renderFavorite();
   renderIndicators(pagination);
 };
 

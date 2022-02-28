@@ -21,7 +21,7 @@ const parse = data => {
           .find('.productList-price')
           .text()
       );
-
+      console.log(element.href)
       return {name, price, brand: "dedicatedbrand"};
     })
     .get();
