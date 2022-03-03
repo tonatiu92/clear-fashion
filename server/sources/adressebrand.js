@@ -20,8 +20,9 @@ const parse = data => {
           .find('.price.product-price')
           .text().match("[0-9]{2},[0,9]{2}")[0]
       );
-
-      return {name, price, brand: "adresse"};
+      const link = $(element)
+        .find('.product-name')[0].attribs.href;
+      return {name, price, brand: "adresse",link};
     })
     .get();
 };

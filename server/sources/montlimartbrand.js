@@ -8,18 +8,24 @@ const cheerio = require('cheerio');
  */
 const parse = data => {
   const $ = cheerio.load(data);
-  return $('.main-container .category-products .item')
+  return $('.main-container .category-products .item ')
     .map((i, element) => {
       const name = $(element)
-        .find('.product-name')
+        .find('.product-info')
         .text()
         .trim()
-        .replace(/\s/g, ' ');
+        .replace(/\s+/g, ' ')
+        .replace(/[0-9]|,|€/g,"")
       const price = parseInt(
         $(element)
           .find('.price')
           .text()
+      
       );
+    /*  const link = $(element)
+        .find(' .product-name')[0].attribs.href
+      console.log(link);
+      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")*/
       return {name, price,  brand: "montlimar"};
     })
     .get();

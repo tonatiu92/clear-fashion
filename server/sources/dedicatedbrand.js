@@ -21,8 +21,9 @@ const parse = data => {
           .find('.productList-price')
           .text()
       );
-      console.log(element.href)
-      return {name, price, brand: "dedicatedbrand"};
+      const link = "dedicatedbrand.com" + $(element)
+        .find('.productList-link')[0].attribs.href
+      return {name, price, brand: "dedicatedbrand", link};
     })
     .get();
 };
