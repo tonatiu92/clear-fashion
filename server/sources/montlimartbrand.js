@@ -22,11 +22,11 @@ const parse = data => {
           .text()
       
       );
-    /*  const link = $(element)
-        .find(' .product-name')[0].attribs.href
-      console.log(link);
-      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")*/
-      return {name, price,  brand: "montlimar"};
+      if ($(element).find(' .product-image')[0]!= undefined){
+        const link = $(element)
+        .find(' .product-image')[0].children[1].attribs.href
+        return {name, price,  brand: "montlimar", link};
+      }
     })
     .get();
 };

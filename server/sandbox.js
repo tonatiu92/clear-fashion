@@ -3,7 +3,7 @@ const dedicatedbrand = require('./sources/dedicatedbrand');
 const montlimartbrand = require('./sources/montlimartbrand');
 const adressebrand = require("./sources/adressebrand");
 const fs = require("fs");
-let product_list = [];
+var product_list = [];
 
 async function sandbox (eshop = 'https://www.dedicatedbrand.com/en/men/news') {
   try {
@@ -33,7 +33,7 @@ let checkFile =() =>{
       });
     }
     else{
-      
+      readProductList()
     }
   });
 }
@@ -41,19 +41,24 @@ let checkFile =() =>{
 let readProductList = () => {
   let products = fs.readFileSync("products.json", "utf-8")
   product_list = JSON.parse(products)
-  fs.writeFileSync("products.json",products.replace(products[products.length-1],""))
+  fs.writeFileSync("products.json",products.replace(products[products.length-1],","))
 }
+
 let scrape = products =>{
   console.log(products);
   products.forEach(x => {
-    if (x in product_list){
-
+    if (product_list.findIndex(y => y.link == x.link)!=-1){
+        console.log("Already scraped")
     }
     else if (x != products[products.length -1])
       fs.appendFileSync("products.json",JSON.stringify(x) + ",")
     else
       fs.appendFileSync("products.json",JSON.stringify(x))
   })
+  let file = fs.readFileSync("products.json","utf-8")
+  if(file[file.length-1] ==","){
+    fs.writeFileSync("products.json",file.substring(0,file.length-1))
+  }
   fs.appendFileSync("products.json","]")
   console.log('done');
   process.exit(0);

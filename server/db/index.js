@@ -2,12 +2,17 @@ require('dotenv').config();
 const {MongoClient} = require('mongodb');
 const fs = require('fs');
 
+
 const MONGODB_DB_NAME = 'clearfashion';
 const MONGODB_COLLECTION = 'products';
-const MONGODB_URI = process.env.MONGODB_URI;
+//const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = "mongodb+srv://tonatiu:<password>@clearfashion.b4dzn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 
-let client = null;
-let database = null;
+
+const client = null;
+const database = null;
+
+//console.log(product)
 
 /**
  * Get db connection
