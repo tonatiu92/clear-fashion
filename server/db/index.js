@@ -1,23 +1,21 @@
 require('dotenv').config();
-const {MongoClient} = require('mongodb');
+const {MongoClient, ServerApiVersion} = require('mongodb');
 const fs = require('fs');
-
 
 const MONGODB_DB_NAME = 'clearfashion';
 const MONGODB_COLLECTION = 'products';
 //const MONGODB_URI = process.env.MONGODB_URI;
-const MONGODB_URI = "mongodb+srv://tonatiu:<password>@clearfashion.b4dzn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+const MONGODB_URI = "mongodb+srv://tonatiu:3pwpGDFRracIL9EG@cluster0.b4dzn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 
 
-const client = null;
-const database = null;
-
-//console.log(product)
+let client = null;
+let database = null;
 
 /**
  * Get db connection
  * @type {MongoClient}
  */
+
 const getDB = module.exports.getDB = async () => {
   try {
     if (database) {
@@ -25,9 +23,8 @@ const getDB = module.exports.getDB = async () => {
       return database;
     }
 
-    client = await MongoClient.connect(MONGODB_URI, {'useNewUrlParser': true});
+    client = await MongoClient.connect(MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
     database = client.db(MONGODB_DB_NAME);
-
     console.log('💽  Connected');
 
     return database;
@@ -70,13 +67,26 @@ module.exports.find = async query => {
     const db = await getDB();
     const collection = db.collection(MONGODB_COLLECTION);
     const result = await collection.find(query).toArray();
-
+  //  console.log(result)
     return result;
   } catch (error) {
     console.error('🚨 collection.find...', error);
     return null;
   }
 };
+module.exports.aggregate = async query => {
+  try {
+    const db = await getDB();
+    const collection = db.collection(MONGODB_COLLECTION);
+    const result = await collection.aggregate(query).toArray();
+  //  console.log(result)
+    return result;
+  } catch (error) {
+    console.error('🚨 collection.find...', error);
+    return null;
+  }
+};
+
 
 /**
  * Close the connection
