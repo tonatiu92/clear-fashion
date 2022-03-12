@@ -10,6 +10,10 @@ const parse = data => {
   const $ = cheerio.load(data);
   return $('.right-block')
     .map((i, element) => {
+    /*  const id = $(element)
+        .find('.product-reference')
+        .text()
+        .trim()*/
       const name = $(element)
         .find('.product-name')
         .text()

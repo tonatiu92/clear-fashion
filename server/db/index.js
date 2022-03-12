@@ -82,12 +82,30 @@ module.exports.aggregate = async query => {
   //  console.log(result)
     return result;
   } catch (error) {
-    console.error('🚨 collection.find...', error);
+    console.error('🚨 collection.aggregate...', error);
     return null;
   }
 };
 
+/**
+ * Delete all products
+ * @return {Object}
+ */
+ module.exports.deleteAll = async () => {
+  try {
+    const db = await getDB();
+    const collection = db.collection(MONGODB_COLLECTION);
+    const result = await collection.deleteMany({});
 
+    return result;
+  } catch (error) {
+    console.error('🚨 collection.delete...', error);
+    fs.writeFileSync('products.json', JSON.stringify(products));
+    return {
+
+    };
+  }
+};
 /**
  * Close the connection
  */

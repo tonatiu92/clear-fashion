@@ -11,6 +11,8 @@ const parse = data => {
 
   return $('.productList-container .productList')
     .map((i, element) => {
+     /* const uuid = $(element).find(". js-saveToFavorites productList-favorites")
+      console.log(uuid + "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")*/
       const name = $(element)
         .find('.productList-title')
         .text()

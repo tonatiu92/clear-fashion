@@ -1,6 +1,6 @@
 const db = require("./db/index.js")
 const product = require("./products.json")
-
+//db.deleteAll()
 //db.getDB()
 
 //db.insert(product)
@@ -17,3 +17,4 @@ const product = require("./products.json")
 //db.aggregate([{$sort:{"price":1}}]).then(response => console.log(response))
 //db.aggregate([{$sort:{"price":1}}]).then(response => console.log(response))
  
+
