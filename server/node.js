@@ -4,7 +4,8 @@ const product = require("./products.json")
 //db.getDB()
 
 //db.insert(product)
-
+//db.find().then(x => console.log(x))
+//db.aggregate([{$limit:12}]).then(x => console.log(x))
 //Find all the products for each brand
 //db.find({"brand":"adresse"}).then(response => console.log(response))
 //db.find({"brand":"dedicatedbrand"}).then(response => console.log(response))

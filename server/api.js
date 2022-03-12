@@ -23,8 +23,23 @@ app.get('/', (request, response) => {
 
 
 app.get("/products/search", (request, response) =>{
-  const {limit,brand,price} = request.query
-  db.aggregate([{$match:{$and:[{"price":parseInt(price)},{"brand" : brand}]}},{$limit:parseInt(limit)}]).then(x => response.send(x))
+  let {limit,brand,price} = request.query
+  if(limit == undefined){
+    limit = 12
+  }
+  if(brand==undefined && price == undefined){
+    db.aggregate([{$limit:limit}]).then(x => response.send(x))
+  }
+  if(brand==undefined){
+    db.aggregate([{$match:{$and:[{"price":parseInt(price)}]}},{$limit:parseInt(limit)}]).then(x => response.send(x))
+  }
+  else if(price==undefined){
+    db.aggregate([{$match:{$and:[{"brand" : brand}]}},{$limit:parseInt(limit)}]).then(x => response.send(x))
+  }
+  else{
+    db.aggregate([{$match:{$and:[{"price":parseInt(price)},{"brand" : brand}]}},{$limit:parseInt(limit)}]).then(x => response.send(x))
+  }
+  
 })
 
 //http://localhost:8092/products/5312759f-8530-5740-ae14-947e62ad094e

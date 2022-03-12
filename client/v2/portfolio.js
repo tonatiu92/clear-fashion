@@ -51,7 +51,8 @@ const fetchProducts = async (page = 1, size = 12,brand="") => {
     brand="";
   try {
     const response = await fetch(
-      `https://clear-fashion-api.vercel.app?page=${page}&size=${size}&brand=${brand}`
+      //`https://clear-fashion-api.vercel.app?page=${page}&size=${size}&brand=${brand}`
+      `https://server-smoky-beta.vercel.app/products/search?limit=${size}&brand=${brand}`
     );
     const body = await response.json();
 
