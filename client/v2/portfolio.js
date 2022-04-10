@@ -311,10 +311,6 @@ const selectedSort = products =>{
       return products.sort((a,b)=>(a.price > b.price) ? 1 :-1);
     case "price-desc":
       return products.sort((a,b)=>(a.price < b.price) ? 1 :-1);
-    case "date-asc":
-      return products.sort((a,b)=>(a.date < b.date) ? 1 :-1);
-    case "date-desc":
-      return products.sort((a,b)=>(a.date > b.date) ? 1 :-1);
     default:
       return products
   } 

@@ -1,6 +1,6 @@
 # 👕 Clear Fashion
 
-My client: https://v2-inky.vercel.app 
+My Deployment: https://v2-inky.vercel.app 
 
 > What's the story behind each item of clothing you buy?
 
