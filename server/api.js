@@ -17,34 +17,32 @@ app.use(helmet());
 app.options('*', cors());
 
 app.get('/', (request, response) => {
-  response.send({'ack': true});
+  response.send({'ack2': true});
 });
 
 
 
 app.get("/products/search", (request, response) =>{
-  let {limit,brand,price} = request.query
-  if(limit == undefined){
-    limit = 12
-  }
+  let {limit = 12 ,brand,price} = request.query
+  let agg = null
   if(brand==undefined && price == undefined){
-    db.aggregate([{$limit:limit}]).then(x => response.send(x))
+    agg = [{$limit:parseInt(limit)}]
   }
-  if(brand==undefined){
-    db.aggregate([{$match:{$and:[{"price":parseInt(price)}]}},{$limit:parseInt(limit)}]).then(x => response.send(x))
+  else if(brand==undefined){
+    agg = [{$match:{$and:[{"price":parseInt(price)}]}},{$limit:parseInt(limit)}]
   }
   else if(price==undefined){
-    db.aggregate([{$match:{$and:[{"brand" : brand}]}},{$limit:parseInt(limit)}]).then(x => response.send(x))
+    agg = [{$match:{$and:[{"brand" : brand}]}},{$limit:parseInt(limit)}]
   }
   else{
-    db.aggregate([{$match:{$and:[{"price":parseInt(price)},{"brand" : brand}]}},{$limit:parseInt(limit)}]).then(x => response.send(x))
+    agg = [{$match:{$and:[{"price":parseInt(price)},{"brand" : brand}]}},{$limit:parseInt(limit)}]
   }
-  
+  db.aggregate(agg).then(x => response.send(x)).catch(e => response.send(e))
 })
 
 //http://localhost:8092/products/5312759f-8530-5740-ae14-947e62ad094e
 app.get('/products/:id',(request, response) => {
-  db.find({"_id":request.params.id}).then(x => response.send(x))
+  db.find({"_id":request.params.id}).then(x => response.send(x)).catch(e => response.send(e))
 })
 
 app.listen(PORT);

@@ -1,9 +1,9 @@
 const db = require("./db/index.js")
 const product = require("./products.json")
 //db.deleteAll()
-//db.getDB()
+db.getDB()
 
-//db.insert(product)
+db.insert(product)
 //db.find().then(x => console.log(x))
 //db.aggregate([{$limit:12}]).then(x => console.log(x))
 //Find all the products for each brand

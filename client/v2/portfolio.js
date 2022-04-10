@@ -7,6 +7,7 @@ let currentPagination = {};
 let currentBrand="All"
 let currentSort = "";
 let favoriteProduct = [];
+let PageInAction = 1
 //RAJOUTER: 
 
 
@@ -46,25 +47,37 @@ const setCurrentProducts = ({result, meta}) => {
  * @param  {Number}  [size=12] - size of the page
  * @return {Object}
  */
-const fetchProducts = async (page = 1, size = 12,brand="") => {
+const fetchProducts = async (size = null ,brand=null, price = null) => {
+  var link = "https://server-smoky-beta.vercel.app/products/search?"
+  var count = 343
   if (brand == "All")
-    brand="";
+    brand=null;
+  if(size != null){
+    link += `limit=${size}&`
+  }
+  else{
+    size = 12
+  }
+  if(brand != null){
+    link += `brand=${brand}&`
+    count -= (CompleteBase.result.length - CompleteBase.result.filter(a => a.brand == brand ).length)
+  }
+  if(price != null){
+    link += `price=${price}&`
+ //   count -= (CompleteBase.result.length - CompleteBase.result.filter(a => a.price == price ).length)
+  }
   try {
     const response = await fetch(
-      //`https://clear-fashion-api.vercel.app?page=${page}&size=${size}&brand=${brand}`
-      `https://server-smoky-beta.vercel.app/products/search?limit=${size}&brand=${brand}`
+      link
     );
     const body = await response.json();
-
-    if (body.success !== true) {
-      console.error(body);
-      return {currentProducts, currentPagination};
-    }
-
-    return body.data;
+    var nbpages = parseInt(count/size)+1
+    let pagination = {PageInAction, nbpages}
+    let data = {"meta": {"count":body.length,"currentPage":pagination.PageInAction,"pageCount": nbpages,"pageSize":size}, "result": body}
+    return data;
   } catch (error) {
     console.error(error);
-    return {currentProducts, currentPagination};
+    return error;
   }
 };
 
@@ -79,7 +92,7 @@ const renderProducts = products => {
   const template = products
     .map(product => {   
       return `
-      <div class="product" id=${product.uuid}>
+      <div class="product" id=${product._id}>
         <span>${product.brand}</span>
         <a href="${product.link}">${product.name}</a>
         <span>${product.price}</span>
@@ -133,6 +146,7 @@ function DelFavorite(event) {
  * @param  {Object} pagination
  */
 const renderPagination = pagination => {
+  console.log(pagination)
   const {currentPage, pageCount} = pagination;
   const options = Array.from(
     {'length': pageCount},
@@ -188,7 +202,8 @@ const render = (products, pagination) => {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const products = await fetchProducts();
-  CompleteBase = await fetchProducts(1, 199);
+  CompleteBase = await fetchProducts(343);
+  console.log(products, "First log")
   renderBrands(CompleteBase.result);
   setCurrentProducts(products);
   render(currentProducts, currentPagination);
@@ -198,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  * Feature 0:Select the number of products to display
  */
 selectShow.addEventListener('change', async (event) => {
-  const products = await fetchProducts(currentPagination.currentPage, parseInt(event.target.value),currentBrand);
+  const products = await fetchProducts(parseInt(event.target.value),currentBrand);
   setCurrentProducts(products);
   render(currentProducts, currentPagination);
 });
@@ -208,7 +223,26 @@ selectShow.addEventListener('change', async (event) => {
  */
 
  selectPage.addEventListener('change', async (event) =>{
-  const products = await fetchProducts(parseInt(event.target.value), currentProducts.length,currentBrand);
+  console.log(currentBrand)
+  var products = await fetchProducts(currentPagination.count,currentBrand);
+  var selected = parseInt(event.target.value);
+  products.meta.currentPage = selected
+  products.result = []
+  var i = 0;
+  var sector = 0
+  var baseExtract = [...CompleteBase.result]
+  if (currentBrand != "All"){
+    baseExtract = baseExtract.filter(a => a.brand == currentBrand)
+  }
+  console.log(baseExtract)
+  baseExtract.forEach(prods => {
+    if ((i >= currentPagination.count*(selected-1)) && (i < currentPagination.count*(selected))){
+      products.result.push(prods)
+      console.log(i)
+    }
+    i++;
+  })
+  console.log(products)
   setCurrentProducts(products);
   render(currentProducts, currentPagination);
 })
@@ -217,10 +251,12 @@ selectShow.addEventListener('change', async (event) => {
  * Feature 2: Filter By Brand
  */
  selectBrands.addEventListener('change', async (event) =>{
-  const products = await fetchProducts(currentPagination.currentPage, currentProducts.length,event.target.value);
+  const products = await fetchProducts(currentPagination.count, event.target.value);
+  currentBrand = event.target.value;
+  console.log(products)
+  console.log(CompleteBase.result.filter(x => x.brand == event.target.value))
   setCurrentProducts(products);
   render(currentProducts, currentPagination);
-  currentBrand = event.target.value;
 })
 
 /**
@@ -341,4 +377,3 @@ function pValues(p){
 /**
  * Feature 14: Filter by favorite
  */
-
