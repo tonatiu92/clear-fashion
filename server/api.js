@@ -29,13 +29,13 @@ app.get("/products/search", (request, response) =>{
     agg = [{$limit:parseInt(limit)}]
   }
   else if(brand==undefined){
-    agg = [{$match:{$and:[{"price":parseInt(price)}]}},{$limit:parseInt(limit)}]
+    agg = [{$match:{$and:[{"price":{$lte : parseInt(price)}}]}},{$limit:parseInt(limit)}]
   }
   else if(price==undefined){
     agg = [{$match:{$and:[{"brand" : brand}]}},{$limit:parseInt(limit)}]
   }
   else{
-    agg = [{$match:{$and:[{"price":parseInt(price)},{"brand" : brand}]}},{$limit:parseInt(limit)}]
+    agg = [{$match:{$and:[{"price":{$lte : parseInt(price)}},{"brand" : brand}]}},{$limit:parseInt(limit)}]
   }
   db.aggregate(agg).then(x => response.send(x)).catch(e => response.send(e))
 })

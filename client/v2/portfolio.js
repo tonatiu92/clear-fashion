@@ -23,14 +23,15 @@ const sectionProducts = document.querySelector('#products');
 const sectionFavorites = document.querySelector("#Favorites")
 const spanNbProducts = document.querySelector('#nbProducts');
 const selectBrands = document.querySelector("#brand-select");
-const selectRecProd = document.querySelector("#By-recently-released");
 const selectReasPrice = document.querySelector("#By-reasonable-price");
+const max_price = document.querySelector("#max_ok")
+const max_price_value = document.querySelector("#max_price_box")
 const selectSort = document.querySelector("#sort-select");
 const spanNbNewProducts = document.querySelector("#nbNewProducts");
 const spanp50 = document.querySelector("#p50");
 const spanp90 = document.querySelector("#p90");
 const spanp95 = document.querySelector("#p95");
-const lastDate = document.querySelector("#lastDate")
+
 /**
  * Set global value
  * @param {Array} result - products to display
@@ -58,19 +59,25 @@ const fetchProducts = async (size = null ,brand=null, price = null) => {
   else{
     size = 12
   }
-  if(brand != null){
-    link += `brand=${brand}&`
+  if ((brand != null)&&(price !=null)){
+    link += `brand=${brand}&price=${price}`
+    count -= (CompleteBase.result.length - CompleteBase.result.filter(a => (a.brand == brand)&&(a.price <= price) ).length)
+  }
+  else if(brand != null){
+    link += `brand=${brand}`
     count -= (CompleteBase.result.length - CompleteBase.result.filter(a => a.brand == brand ).length)
   }
-  if(price != null){
-    link += `price=${price}&`
- //   count -= (CompleteBase.result.length - CompleteBase.result.filter(a => a.price == price ).length)
+  else if(price != null){
+    link += `price=${price}`
+    count -= (CompleteBase.result.length - CompleteBase.result.filter(a => a.price <= price ).length)
   }
   try {
+    console.log(link)
     const response = await fetch(
       link
     );
     const body = await response.json();
+    console.log(body)
     var nbpages = parseInt(count/size)+1
     let pagination = {PageInAction, nbpages}
     let data = {"meta": {"count":body.length,"currentPage":pagination.PageInAction,"pageCount": nbpages,"pageSize":size}, "result": body}
@@ -162,18 +169,19 @@ const renderPagination = pagination => {
  * @param  {Object} pagination
  */
 const renderIndicators = pagination => {
-  const {count} = pagination;
+
+  const count = CompleteBase.result.length;
 
   spanNbProducts.innerHTML = count;
 
   //Feature 9
-  spanNbNewProducts.innerHTML = parseInt(CompleteBase.result.filter(a =>  (new Date()/86400000 - new Date(a.released)/86400000) < 15).length);
+  //spanNbNewProducts.innerHTML = parseInt(CompleteBase.result.filter(a =>  (new Date()/86400000 - new Date(a.released)/86400000) < 15).length);
 
   //Feature 10
   spanp50.innerHTML = parseInt(pValues(0.5));
   spanp90.innerHTML = parseInt(pValues(0.9));
   spanp95.innerHTML = parseInt(pValues(0.95));
-  lastDate.innerHTML = CompleteBase.result.reduce(function(a, b) {return  new Date(a.released)<new Date(b.released) ? b : a}).released;
+ // lastDate.innerHTML = CompleteBase.result.reduce(function(a, b) {return  new Date(a.released)<new Date(b.released) ? b : a}).released;
 
 };
 
@@ -188,9 +196,7 @@ const renderBrands = products =>{
 
 const render = (products, pagination) => {
   let products_2 = check_reas_price(products);
-  let products_3 = check_rec_rel(products_2);
-  let products_4 = selectedSort(products_3);
-  renderProducts(products_4);
+  renderProducts(products_2);
   renderPagination(pagination);
   renderFavorite();
   renderIndicators(pagination);
@@ -214,8 +220,13 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 selectShow.addEventListener('change', async (event) => {
   const products = await fetchProducts(parseInt(event.target.value),currentBrand);
-  setCurrentProducts(products);
-  render(currentProducts, currentPagination);
+  /*setCurrentProducts(products);
+  render(currentProducts, currentPagination);*/
+  currentPagination.count = parseInt(event.target.value)
+  var final_products = applySort(1,products)
+  console.log(final_products)
+  setCurrentProducts(final_products)
+  render(currentProducts, currentPagination,currentBrand);
 });
 
 /**
@@ -226,25 +237,11 @@ selectShow.addEventListener('change', async (event) => {
   console.log(currentBrand)
   var products = await fetchProducts(currentPagination.count,currentBrand);
   var selected = parseInt(event.target.value);
-  products.meta.currentPage = selected
-  products.result = []
-  var i = 0;
-  var sector = 0
-  var baseExtract = [...CompleteBase.result]
-  if (currentBrand != "All"){
-    baseExtract = baseExtract.filter(a => a.brand == currentBrand)
-  }
-  console.log(baseExtract)
-  baseExtract.forEach(prods => {
-    if ((i >= currentPagination.count*(selected-1)) && (i < currentPagination.count*(selected))){
-      products.result.push(prods)
-      console.log(i)
-    }
-    i++;
-  })
-  console.log(products)
-  setCurrentProducts(products);
-  render(currentProducts, currentPagination);
+  var final_products = applySort(selected,products)
+  console.log(final_products)
+  setCurrentProducts(final_products)
+  render(currentProducts, currentPagination,currentBrand);
+  
 })
 
 /**
@@ -262,6 +259,7 @@ selectShow.addEventListener('change', async (event) => {
 /**
  * Feature 3: Filter by recent products
  */
+/*
 selectRecProd.addEventListener("change", async (event) =>{
   render(currentProducts, currentPagination);
 
@@ -275,7 +273,7 @@ const check_rec_rel = products =>{
     return products
   }
 
-}
+}*/
 /**
  * Feature 4 Filter by reasonable price
  */
@@ -294,6 +292,13 @@ const check_reas_price = products =>{
   }
 }
 
+max_price.addEventListener('click', async () => {
+  var max = parseInt(max_price_value.value)
+  console.log(max)
+  var products = await fetchProducts(currentPagination.count,currentBrand, max);
+  setCurrentProducts(products)
+  render(currentProducts, currentPagination,currentBrand);
+})
 
 /**
  * Feature 5 Sort by Price
@@ -301,9 +306,33 @@ const check_reas_price = products =>{
  */
  selectSort.addEventListener('change', async (event) => {
   currentSort = event.target.value;
+  var selected = currentPagination.currentPage
+  var products = currentProducts
+  var final_products = applySort(selected,products)
+  console.log(final_products)
+  setCurrentProducts(final_products)
   render(currentProducts, currentPagination,currentBrand);
   
 });
+
+const applySort = (selected,products) => {
+  var BaseSorted_Copy =  [...CompleteBase.result]
+  if (currentBrand != "All"){
+    BaseSorted_Copy = BaseSorted_Copy.filter(a => a.brand == currentBrand)
+  }
+  var products_sorted = selectedSort(BaseSorted_Copy);
+  products.result = []
+  var i = 0
+  products_sorted.forEach(prods => {
+    if ((i >= currentPagination.count*(selected-1)) && (i < currentPagination.count*(selected))){
+      products.result.push(prods)
+    }
+    i++;
+  })
+  currentPagination.currentPage = selected
+  var final_products = {"meta":currentPagination, "result":products.result}
+  return final_products
+}
 
 const selectedSort = products =>{
   switch(currentSort){
